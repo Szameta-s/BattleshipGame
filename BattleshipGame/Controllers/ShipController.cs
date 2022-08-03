@@ -1,6 +1,8 @@
 ﻿using BattleshipGame.Data;
+using BattleshipGame.Data.Entities;
 using BattleshipGame.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace BattleshipGame.Controllers
 {
@@ -41,6 +43,13 @@ namespace BattleshipGame.Controllers
                 return NotFound();
             }
 
+            return Ok(results);
+        }
+
+        [HttpGet("pos")]
+        public ActionResult<IEnumerable<Ship>> GeneratePosition() 
+        {
+            var results = _repository.GenerateShipCells();
             return Ok(results);
         }
     }

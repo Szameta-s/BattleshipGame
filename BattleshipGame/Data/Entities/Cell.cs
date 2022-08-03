@@ -2,8 +2,7 @@
 {
     public class Cell
     {
-        public int PosX { get; set; }
-        public int PosY { get; set; }
+        public int[] Position { get; set; }
         public bool IsHit { get; set; }
     }
 }
