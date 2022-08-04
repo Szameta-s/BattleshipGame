@@ -1,7 +1,8 @@
 <h2>Battleship Game</h2>
 <div>
-    <button type="button" class="btn btn-primary">Primary</button>
+    <button class="btn btn-primary" (click)="spawnShips()">Spawn Ships</button>
 </div>
-
-
-<canvas #canvas width="600" height="600"></canvas>
+<div>
+    <button class="btn btn-primary" (click)="getGrid()">Get Grid</button>
+</div>
+<canvas #canvas (click)="handleClick($event)" width="600" height="600"></canvas>

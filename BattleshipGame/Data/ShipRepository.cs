@@ -42,41 +42,47 @@ namespace BattleshipGame.Data
         public IEnumerable<Ship> GenerateShipCells() 
         {
             Random rand = new Random();
+            _gameRepository.ClearGrid();
+
             foreach (Ship ship in _ships)
-            {
-                List<Cell> shipCells = new List<Cell>();
+            {   
                 bool shipCellsCreated = false;
                 
                 while (!shipCellsCreated)
                 {
-                    int[] randStartPosition = GenerateShipPosition(9);
+                    List<Cell> shipCells = new List<Cell>();
+                    int[] randStartPosition = GenerateShipPosition(10);
 
                     if (_gameRepository.IsGridCellEmpty(randStartPosition))
                     {
                         int nextPosX = randStartPosition[0];
                         int nextPosY = randStartPosition[1];
-                        shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
+                        int direction = rand.Next(0, 4);
 
-                        int direction = rand.Next(0, 3);
-                        for (int i = 1; i < ship.Size; i++)
+                        for (int i = 0; i < ship.Size; i++)
                         {
                             switch (direction)
                             {
+                                // Up
                                 case 0:
                                     nextPosY = randStartPosition[1] - i;
+                                    // Check if cell posision is in boundaries of the board
                                     if (nextPosY >= 0 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
                                         shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
                                     break;
+                                // Right
                                 case 1:
                                     nextPosX = randStartPosition[0] + i;
                                     if (nextPosX <= 9 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
                                         shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
                                     break;
+                                // Down
                                 case 2:
                                     nextPosY = randStartPosition[1] + i;
                                     if (nextPosY <= 9 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
                                         shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
                                     break;
+                                // Left
                                 case 3:
                                     nextPosX = randStartPosition[0] - i;
                                     if (nextPosX >= 0 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
@@ -90,6 +96,7 @@ namespace BattleshipGame.Data
 
                     if (shipCells.Count() == ship.Size)
                     {
+                        _gameRepository.MarkCellsOnGrid(shipCells);
                         ship.Cells = shipCells;
                         shipCellsCreated = true;
                     }

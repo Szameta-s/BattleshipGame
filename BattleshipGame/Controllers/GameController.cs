@@ -1,4 +1,5 @@
 ﻿using BattleshipGame.Data;
+using BattleshipGame.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -18,10 +19,19 @@ namespace BattleshipGame.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<int[]>> GetGrid()
+        public ActionResult<Grid> GetGrid()
         {
             var results = JsonConvert.SerializeObject(_repository.GetGrid());
             return Ok(results);
         }
+
+        /*[HttpGet("clear")]
+        public ActionResult<Grid> ClearGrid()
+        {
+            _repository.ClearGrid();
+
+            var results = JsonConvert.SerializeObject(_repository.GetGrid());
+            return Ok(results);
+        }*/
     }
 }
