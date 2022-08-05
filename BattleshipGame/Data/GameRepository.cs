@@ -26,8 +26,14 @@ namespace BattleshipGame.Data
             {
                 PlayerId = 1,
                 Size = 10,
-                Board = new int[10, 10]
+                Board = new int[10, 10],
+                Ships = new List<Ship>()
             };
+        }
+
+        public void AddShipsToGrid(IEnumerable<Ship> ships)
+        {
+            _grid.Ships = ships;
         }
 
         public void MarkCellsOnGrid(IEnumerable<Cell> cells)

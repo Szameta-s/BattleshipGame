@@ -102,6 +102,7 @@ namespace BattleshipGame.Data
                     }
                 }          
             }
+            _gameRepository.AddShipsToGrid(_ships);
             return _ships;
         }
 

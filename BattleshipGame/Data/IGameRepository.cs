@@ -7,6 +7,7 @@ namespace BattleshipGame.Data
     {
         public Grid GetGrid();
         public void ClearGrid();
+        public void AddShipsToGrid(IEnumerable<Ship> ships);
         public void MarkCellsOnGrid(IEnumerable<Cell> cells);
         public bool IsGridCellEmpty(int[] cellPosition);
     }

@@ -1,12 +1,51 @@
+.container {
+    margin-right:auto;
+    margin-left:auto;
+    padding-left:15px;
+    padding-right:15px;
+    text-align:center;
+    align-content:center;
+  }
+
 canvas {
     padding: 0;
     margin: auto;
-    display: block;
-    border-style: solid
+    display: inline-block;
+    border-style: solid;
 }
 
-h2 {
-    margin-top: 2em;
+.game-display {
+    display: inline-block;
+    margin-right: 1em;
+}
+
+#menu {
+    align-content: center;
     margin-bottom: 2em;
+}
+
+    #menu button {
+        display: inline-block;
+        width: 140px;
+        height: 60px;
+        border: none;
+        margin-right: 5px;
+        text-align: center;
+        font-size: 20px;
+        font-style:italic;
+        font-weight:500;
+        background-color: black;
+        color: rgb(91, 153, 245);
+    }
+
+    #menu button:hover {
+        color: black;
+        background-color: rgb(91, 153, 245);
+        border: solid;
+    }
+
+h1 {
+    margin-top: 1em;
+    margin-bottom: 1em;
     text-align: center;
 }

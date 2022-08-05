@@ -1,8 +1,15 @@
-<h2>Battleship Game</h2>
-<div>
-    <button class="btn btn-primary" (click)="spawnShips()">Spawn Ships</button>
+<h1>Battleship Game</h1>
+<div class="container">
+    <div id="menu">
+        <button (click)="spawnShips()">Spawn Ships</button>
+        <button (click)="getGrid()">Get Grid</button>
+    </div>
+        <div class="game-display">
+            <canvas #canvas (click)="drawHitMark($event)" width="660" height="660"></canvas>
+        </div>
+        <div class="game-display" *ngIf="showShips">
+            <div *ngFor="let ship of ships">
+                <p>{{ ship.Name }} Hitpoints: {{ ship.Hitpoints }}</p>
+            </div>
+    </div>
 </div>
-<div>
-    <button class="btn btn-primary" (click)="getGrid()">Get Grid</button>
-</div>
-<canvas #canvas (click)="handleClick($event)" width="600" height="600"></canvas>
