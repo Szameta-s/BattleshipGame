@@ -5,8 +5,8 @@ namespace BattleshipGame.Data
 {
     public class ShipRepository : IShipRepository
     {
-        IEnumerable<Ship> _ships;
-        IGameRepository _gameRepository;
+        public IEnumerable<Ship> _ships;
+        private readonly IGameRepository _gameRepository;
 
         public ShipRepository(IGameRepository gameRepository)
         {
@@ -39,6 +39,23 @@ namespace BattleshipGame.Data
             }         
         }
 
+        public Ship MarkShipCellWithHit(Cell cell)
+        {
+            int xPos = cell.Position[0];
+            int yPos = cell.Position[1];
+
+            var targetShip = _ships.Where(ship => ship.Id == cell.ShipId).FirstOrDefault();
+            var targetCell = targetShip.Cells.Where(shipCell => shipCell.Position[0] == xPos && shipCell.Position[1] == yPos).FirstOrDefault();
+
+            if (targetCell.IsHit == false)
+            {
+                targetCell.IsHit = true;
+                targetShip.Hitpoints--;
+            }         
+
+            return targetShip;
+        }
+
         public IEnumerable<Ship> GenerateShipCells() 
         {
             Random rand = new Random();
@@ -66,27 +83,27 @@ namespace BattleshipGame.Data
                                 // Up
                                 case 0:
                                     nextPosY = randStartPosition[1] - i;
-                                    // Check if cell posision is in boundaries of the board
+                                    // Check if cell posision is in boundaries of the grid
                                     if (nextPosY >= 0 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
                                     break;
                                 // Right
                                 case 1:
                                     nextPosX = randStartPosition[0] + i;
                                     if (nextPosX <= 9 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
                                     break;
                                 // Down
                                 case 2:
                                     nextPosY = randStartPosition[1] + i;
                                     if (nextPosY <= 9 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
                                     break;
                                 // Left
                                 case 3:
                                     nextPosX = randStartPosition[0] - i;
                                     if (nextPosX >= 0 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { Position = new[] { nextPosX, nextPosY } });
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
                                     break;
                                 default:
                                     break;
@@ -96,7 +113,8 @@ namespace BattleshipGame.Data
 
                     if (shipCells.Count() == ship.Size)
                     {
-                        _gameRepository.MarkCellsOnGrid(shipCells);
+                        _gameRepository.MarkCellsOnGrid(shipCells, ship.Id);
+                        ship.Hitpoints = ship.Size;
                         ship.Cells = shipCells;
                         shipCellsCreated = true;
                     }

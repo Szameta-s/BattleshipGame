@@ -1,4 +1,4 @@
 export class Cell {
-    Position: number[];
-    IsHit: boolean;
+    shipId: number;
+    position: number[];
 }

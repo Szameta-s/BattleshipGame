@@ -4,12 +4,12 @@
         <button (click)="spawnShips()">Spawn Ships</button>
         <button (click)="getGrid()">Get Grid</button>
     </div>
-        <div class="game-display">
-            <canvas #canvas (click)="drawHitMark($event)" width="660" height="660"></canvas>
+    <div class="game-display">
+        <div class="ship-display" *ngFor="let ship of ships">
+            <h4>{{ ship.id }}. Ship: {{ ship.name }}, Hitpoints: {{ ship.hitpoints }}</h4>
         </div>
-        <div class="game-display" *ngIf="showShips">
-            <div *ngFor="let ship of ships">
-                <p>{{ ship.Name }} Hitpoints: {{ ship.Hitpoints }}</p>
-            </div>
+    </div>
+    <div class="game-display">
+        <canvas #canvas (click)="drawHitMark($event)" width="660" height="660"></canvas>
     </div>
 </div>

@@ -5,45 +5,40 @@ namespace BattleshipGame.Data
 {
     public class GameRepository: IGameRepository
     {
-        Grid _grid;
+        public Player _player;
 
         public GameRepository()
         {
-            _grid = new Grid()
+            _player = new Player()
             {
-                PlayerId = 1, Size = 10, Board = new int[10, 10] 
-            };
+                Id = 1, Name = "Player 1", Grid = new int [10, 10]
+            }; 
         }
 
-        public Grid GetGrid()
+        public Player GetPlayer() 
         {
-            return _grid;
+            return _player;
         }
 
         public void ClearGrid()
         {
-            _grid = new Grid()
-            {
-                PlayerId = 1,
-                Size = 10,
-                Board = new int[10, 10],
-                Ships = new List<Ship>()
-            };
+            _player.Grid = new int[10, 10];
+            _player.Ships = new List<Ship>();
         }
 
         public void AddShipsToGrid(IEnumerable<Ship> ships)
         {
-            _grid.Ships = ships;
+            _player.Ships = ships;
         }
 
-        public void MarkCellsOnGrid(IEnumerable<Cell> cells)
+        public void MarkCellsOnGrid(IEnumerable<Cell> cells, int shipId)
         {
             var cellsList = cells.ToList();
             foreach (var cell in cellsList)
             {
                 int cellPosX = cell.Position[0];
                 int cellPosY = cell.Position[1];
-                _grid.Board[cellPosY, cellPosX] = 1;
+                _player.Grid[cellPosY, cellPosX] = shipId;
             }
         }
 
@@ -52,7 +47,7 @@ namespace BattleshipGame.Data
             int posX = cellPosition[0];
             int posY = cellPosition[1];
 
-            if (_grid.Board[posY, posX] == 0)
+            if (_player.Grid[posY, posX] == 0)
             {
                 return true;
             }

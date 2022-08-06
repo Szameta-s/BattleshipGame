@@ -5,10 +5,10 @@ namespace BattleshipGame.Data
 {
     public interface IGameRepository
     {
-        public Grid GetGrid();
+        public Player GetPlayer();
         public void ClearGrid();
         public void AddShipsToGrid(IEnumerable<Ship> ships);
-        public void MarkCellsOnGrid(IEnumerable<Cell> cells);
+        public void MarkCellsOnGrid(IEnumerable<Cell> cells, int shipId);
         public bool IsGridCellEmpty(int[] cellPosition);
     }
 }

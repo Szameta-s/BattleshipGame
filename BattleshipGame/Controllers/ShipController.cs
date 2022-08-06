@@ -46,11 +46,26 @@ namespace BattleshipGame.Controllers
             return Ok(results);
         }
 
-        [HttpGet("pos")]
+        [HttpGet("spawn")]
         public ActionResult<IEnumerable<Ship>> GeneratePosition() 
         {
             var results = _repository.GenerateShipCells();
             return Ok(results);
+        }
+
+        [HttpPost("shoot")]
+        public ActionResult<Ship> GetShipWithHit([FromBody] Cell cell)
+        {
+            try
+            {
+                var results = _repository.MarkShipCellWithHit(cell);
+                return Ok(results);
+            }
+            catch 
+            { 
+                return BadRequest(_logger);
+            }
+            
         }
     }
 }

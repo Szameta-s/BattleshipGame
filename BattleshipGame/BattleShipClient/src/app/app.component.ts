@@ -1,6 +1,8 @@
+import { ConstantPool } from '@angular/compiler';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AppService } from './shared/app.service';
-import { Grid } from './shared/grid';
+import { Cell } from './shared/cell';
+import { Player } from './shared/player';
 import { Ship } from './shared/ship';
 
 @Component({
@@ -19,8 +21,9 @@ export class AppComponent implements OnInit {
   private ctx: CanvasRenderingContext2D;
   
   showShips: boolean = false;
-  grid: Grid;
+  player: Player;
   ships: Ship[];
+  index: number;
   private imageHit;
   private imageMiss;
   private xPos: number;
@@ -77,7 +80,15 @@ export class AppComponent implements OnInit {
     this.yPos = Math.floor(e.offsetY / this.cellSize);
     
     if ((this.yPos !== 0) && (this.xPos !== 0)) {
-      if (this.grid.Board[this.yPos - 1][this.xPos - 1] === 1) {
+      if (this.player.grid[this.yPos - 1][this.xPos - 1] !== 0) {
+        this.appService.shoot(
+          { 
+            shipId: this.player.grid[this.yPos - 1][this.xPos - 1],
+            position: [this.xPos - 1, this.yPos - 1] }    
+          ).subscribe((data: Ship) => {
+              this.index = data.id - 1;
+              this.ships[this.index] = data;
+          });
         this.ctx.drawImage(this.imageHit, this.xPos * this.cellSize,
           this.yPos * this.cellSize, this.cellSize, this.cellSize)
       } 
@@ -94,11 +105,11 @@ export class AppComponent implements OnInit {
   }
 
   getGrid() {
-    this.appService.loadGrid().subscribe((data: Grid) => {
-      this.grid = data;
-      this.ships = data.Ships;
+    this.appService.loadPlayer().subscribe((data: Player) => {
+      this.player = data;
+      this.ships = data.ships;
       this.showShips = true;
-      console.log(this.grid)
+      console.log(this.player)
     });
   }
 }

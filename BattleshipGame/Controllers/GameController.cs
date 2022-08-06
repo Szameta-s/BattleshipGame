@@ -2,6 +2,7 @@
 using BattleshipGame.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace BattleshipGame.Controllers
 {
@@ -19,9 +20,13 @@ namespace BattleshipGame.Controllers
         }
 
         [HttpGet]
-        public ActionResult<Grid> GetGrid()
+        public ActionResult<Grid> GetPlayer()
         {
-            var results = JsonConvert.SerializeObject(_repository.GetGrid());
+            var results = JsonConvert.SerializeObject(_repository.GetPlayer(), new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.Indented
+            });
             return Ok(results);
         }
 

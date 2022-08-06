@@ -7,6 +7,7 @@ namespace BattleshipGame.Data
     {
         public IEnumerable<Ship> GetAllShips();
         public Ship GetShipById(int id);
+        public Ship MarkShipCellWithHit(Cell cell);
         public IEnumerable<Ship> GenerateShipCells();
         public int[] GenerateShipPosition(int range);
     }
