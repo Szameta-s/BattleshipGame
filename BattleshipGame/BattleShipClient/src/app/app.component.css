@@ -7,12 +7,13 @@
     padding-right:15px;
     text-align:center;
     align-content:center;
-  }
+}
+
 
 canvas {
     padding: 0;
     margin: auto;
-    margin-bottom: 2em;
+    margin-right: 1em;
     display: inline-block;
     border-style: solid;
 }
@@ -20,7 +21,6 @@ canvas {
 .game-display {
     display: inline-flex;
     height: auto;
-    margin-right: 1em;
 }
 
 .ship-display {

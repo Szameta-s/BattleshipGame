@@ -67,22 +67,23 @@ namespace BattleshipGame.Controllers
         {
             try
             {
-                var results = _repository.MarkShipCellWithHit(data.Ship, data.Cell);
-                return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+                bool isDuplicate = _repository.IsCellDuplicate(data.Cells, data.Cell);
+                List<Cell> cellsList = data.Cells.ToList();
 
-        // Add function for checking if player shoots the same cell multiple times
-        [HttpPost("checkmove")]
-        public ActionResult<IEnumerable<Cell>> CheckIfMoveAvailable(IEnumerable<Cell> cells) 
-        {
-            try
-            {
-                return Ok();
+                if (!isDuplicate)
+                {
+                    cellsList.Add(data.Cell);
+
+                    if (data.Ship.Id != 0) 
+                    {
+                        Ship updatedShip = _repository.MarkShipCellWithHit(data.Ship, data.Cell);
+                        return Ok(new ShotDataModel() { Ship = updatedShip, Cells = cellsList });
+                    }
+
+                    return Ok(new ShotDataModel() { Cells = cellsList });
+                }
+
+                return Ok(new ShotDataModel() { Ship = new Ship { Id = 0 }, Cells = cellsList });
             }
             catch (Exception ex)
             {

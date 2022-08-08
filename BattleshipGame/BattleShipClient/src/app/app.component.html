@@ -20,6 +20,11 @@
     </div>
     <hr>
     <div class="game-display">
-        <canvas #canvas (click)="drawHitMark($event)" width="660" height="660"></canvas>
+        <canvas #canvasShots (click)="shoot($event)" width="660" height="660"></canvas>
+        <div class="game-diplay">
+            <canvas #canvasPlayer width="300" height="300"></canvas>
+            <h4>Player's Grid</h4>
+        </div>
+        
     </div>
 </div>

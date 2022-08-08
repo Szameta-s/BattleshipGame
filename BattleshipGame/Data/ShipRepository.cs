@@ -76,19 +76,17 @@ namespace BattleshipGame.Data
             return cellsList;
         }
 
-        public bool CheckForCellsDuplicates(IEnumerable<Cell> cells, Cell cell) 
+        public bool IsCellDuplicate(IEnumerable<Cell> cells, Cell cell) 
         {
             int xPos = cell.Position[0];
             int yPos = cell.Position[1];
-            var cellsList = cells.ToList();
 
             if ((!cells.Any(c => c.Position[0] == xPos && c.Position[1] == yPos)) || (!cells.Any()))
             {
-                cellsList.Add(cell);
-                return true;
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         public Board GenerateBoard() 

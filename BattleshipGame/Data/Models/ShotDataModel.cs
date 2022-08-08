@@ -7,5 +7,6 @@ namespace BattleshipGame.Data.Models
     {
         public Ship Ship { get; set; }
         public Cell Cell { get; set; }
+        public IEnumerable<Cell> Cells { get; set; }
     }
 }

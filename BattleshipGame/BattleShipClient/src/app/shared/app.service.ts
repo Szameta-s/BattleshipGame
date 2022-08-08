@@ -19,8 +19,8 @@ export class AppService {
         return this.http.get<Player>(`http://localhost:5000/api/game/${id}`);
     }
 
-    shoot(ship: Ship, cell: Cell) {
-        return this.http.post<Ship>('http://localhost:5000/api/ship/shoot', {ship, cell});
+    shoot(ship: Ship, cell: Cell, cells: Cell[]) {
+        return this.http.post<any>('http://localhost:5000/api/ship/shoot', {ship, cell, cells});
     }
 
     generateAIShot(board: Board, cells: Cell[]) {
