@@ -2,8 +2,7 @@
 using BattleshipGame.Data.Entities;
 using BattleshipGame.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+
 
 namespace BattleshipGame.Controllers
 {
@@ -27,14 +26,10 @@ namespace BattleshipGame.Controllers
         public ActionResult<Player> GetPlayers(int id)
         {
             Player player = _gameRepository.GetPlayerById(id);
-            Board board = new Board();
-
-            board = _shipRepository.GenerateBoard();
+            Board board = _shipRepository.GenerateBoard();
             player.Board = board;
 
-            var results = player;
-
-            return Ok(results);
+            return Ok(player);
         }
     }
 }

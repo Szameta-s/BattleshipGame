@@ -1,8 +1,7 @@
 <!-- <h1>Battleship Game</h1> -->
 <div class="container">
     <div id="menu">
-        <button (click)="getPlayers()">New Game</button>
-        <button (click)="AIShot()">AI Shot</button>
+        <button (click)="getPlayers()">NEW GAME</button>
     </div>
     <hr>
     <div class="game-display">
@@ -19,6 +18,10 @@
         </div>
     </div>
     <hr>
+    <div *ngIf="gameOver" class="game-display">
+        <h4>GAME OVER - Click New Game to play again!</h4>
+    <hr>
+    </div>
     <div class="game-display">
         <canvas #canvasShots (click)="shoot($event)" width="660" height="660"></canvas>
         <div class="game-diplay">

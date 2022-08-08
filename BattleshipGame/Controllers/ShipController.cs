@@ -3,10 +3,6 @@ using BattleshipGame.Data.Entities;
 using BattleshipGame.Data.Models;
 using BattleshipGame.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using System.Text.Json;
 
 namespace BattleshipGame.Controllers
 {
@@ -15,19 +11,19 @@ namespace BattleshipGame.Controllers
     [Produces("application/json")]
     public class ShipController : Controller
     {
-        private readonly IShipRepository _repository;
+        private readonly IShipRepository _shipRepository;
         private readonly ILogger<ShipController> _logger;
 
-        public ShipController(IShipRepository repository, ILogger<ShipController> logger)
+        public ShipController(IShipRepository shipRepository, ILogger<ShipController> logger)
         {
-            _repository = repository;
+            _shipRepository = shipRepository;
             _logger = logger;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<Ship>> Get()
         {
-            var results = _repository.GetAllShips();
+            var results = _shipRepository.GetAllShips();
 
             if (results == null)
             {
@@ -40,7 +36,7 @@ namespace BattleshipGame.Controllers
         [HttpGet("{id:int}")]
         public ActionResult<Ship> GetById(int id)
         {
-            var results = _repository.GetShipById(id);
+            var results = _shipRepository.GetShipById(id);
 
             if (results == null)
             {
@@ -50,24 +46,13 @@ namespace BattleshipGame.Controllers
             return Ok(results);
         }
 
-        [HttpGet("spawn")]
-        public ActionResult<Board> GenerateBoardWithShips() 
-        {
-            var results = _repository.GenerateBoard();
-            var grid = JsonConvert.SerializeObject(results.Grid, new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver()
-            });
-            
-            return Ok(grid);
-        }
 
         [HttpPost("shoot")]
         public ActionResult<Ship> GetShipWithHit([FromBody] ShotDataModel data)
         {
             try
             {
-                bool isDuplicate = _repository.IsCellDuplicate(data.Cells, data.Cell);
+                bool isDuplicate =  GameUtilities.IsCellDuplicate(data.Cells, data.Cell);
                 List<Cell> cellsList = data.Cells.ToList();
 
                 if (!isDuplicate)
@@ -76,7 +61,7 @@ namespace BattleshipGame.Controllers
 
                     if (data.Ship.Id != 0) 
                     {
-                        Ship updatedShip = _repository.MarkShipCellWithHit(data.Ship, data.Cell);
+                        Ship updatedShip = GameUtilities.MarkShipCellWithHit(data.Ship, data.Cell);
                         return Ok(new ShotDataModel() { Ship = updatedShip, Cells = cellsList });
                     }
 
@@ -96,7 +81,7 @@ namespace BattleshipGame.Controllers
         {
             try
             {
-                var cells = _repository.GenerateShot(data.Cells);
+                var cells = GameUtilities.GenerateShot(data.Cells);
                 int lastIdx = cells.Count() - 1;
                 var cell = cells.ToList()[lastIdx];
                 Board board = data.Board;
@@ -110,7 +95,7 @@ namespace BattleshipGame.Controllers
 
                     if (oldShip != null)
                     {
-                        updatedShip = _repository.MarkShipCellWithHit(oldShip, cell);
+                        updatedShip = GameUtilities.MarkShipCellWithHit(oldShip, cell);
                     }
                 }
 

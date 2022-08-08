@@ -1,11 +1,12 @@
 ﻿using BattleshipGame.Data.Entities;
 using BattleshipGame.Entities;
 
+
 namespace BattleshipGame.Data
 {
     public class GameRepository: IGameRepository
     {
-        public IEnumerable<Player> _players;
+        private readonly IEnumerable<Player> _players;
 
         public GameRepository()
         {
