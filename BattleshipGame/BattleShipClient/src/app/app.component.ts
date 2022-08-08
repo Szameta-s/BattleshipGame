@@ -1,5 +1,3 @@
-import { ConstantPool } from '@angular/compiler';
-import { escapeRegExp } from '@angular/compiler/src/util';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AppService } from './shared/app.service';
 import { Board } from './shared/board';
@@ -122,6 +120,21 @@ export class AppComponent implements OnInit {
     }
   }
 
+  checkIfShipDestroyed(id: number, hitpoints: number) {
+    if (id === 1) {
+      if (hitpoints === 0) {
+        this.p1Ships--;
+        this.checkIfGameOver();
+      }
+    }
+    else {
+      if (hitpoints === 0) {
+        this.p2Ships--;
+        this.checkIfGameOver();
+      }
+    }
+  }
+
   checkIfGameOver() {
     if (this.p1Ships === 0) {
       this.gameStarted = false;
@@ -143,19 +156,16 @@ export class AppComponent implements OnInit {
         const idx = this.aiShots.length-1
         const xPos = this.aiShots[idx].position[0];
         const yPos = this.aiShots[idx].position[1];
-
+        // Hit Case
         if (ship.id !== 0) {
           const index = ship.id - 1;
           this.player_1.board.ships[index] = ship;
-          console.log("Computer hit your ship:", ship.name);
+          console.log("Computer hit your ship:", "Id:", ship.id, ship.name);
           this.ctxPlayer.drawImage(this.imageHit, xPos * this.cellSize / 2,
             yPos * this.cellSize / 2, this.cellSize / 2, this.cellSize / 2);
-          if (ship.hitpoints === 0) {
-            this.p1Ships--;
-            console.log("Player 1 ships alive:", this.p1Ships);
-            this.checkIfGameOver();
-          }
+          this.checkIfShipDestroyed(this.player_1.id, ship.hitpoints);
         }
+        // Miss Case
         else {
           console.log("Computer missed");
           this.ctxPlayer.drawImage(this.imageMiss, xPos * this.cellSize / 2,
@@ -169,39 +179,35 @@ export class AppComponent implements OnInit {
     const xPos = Math.floor(e.offsetX / this.cellSize);
     const yPos = Math.floor(e.offsetY / this.cellSize);
     
-    if (this.gameStarted === true) {
-      if ((yPos !== 0) && (xPos !== 0)) {
-        if (this.player_2.board.grid[yPos - 1][xPos - 1] !== 0) {
-          const id = this.player_2.board.grid[yPos - 1][xPos - 1];
-          const ship = this.player_2.board.ships[id-1];
-          this.appService.shoot(ship, { shipId: id, position: [xPos - 1, yPos - 1]}, this.playerShots)
-            .subscribe((data: any) => {
-              if (data.ship.id !== 0) {
-                const index = ship.id - 1;
-                this.player_2.board.ships[index] = data.ship;
-                this.playerShots = data.cells;
-                this.ctxShots.drawImage(this.imageHit, xPos * this.cellSize,
-                  yPos * this.cellSize, this.cellSize, this.cellSize)
-                if (data.ship.hitpoints === 0) {
-                  this.p2Ships--;
-                  console.log("Player 2 ships alive:", this.p2Ships);
-                  this.checkIfGameOver();
-                }
-                this.AIShot();
-              }
-            });
-        } 
-        else {
-          this.appService.shoot({ id: 0, name: "", hitpoints: 0, cells: []}, { shipId: 0, position: [xPos - 1, yPos - 1]}, this.playerShots)
-            .subscribe((data: any) => {
-              if (data.ship === null) {
-                this.playerShots = data.cells;
-                this.ctxShots.drawImage(this.imageMiss, xPos * this.cellSize,
-                  yPos * this.cellSize, this.cellSize, this.cellSize)
-                  this.AIShot();
-              }
-            })
-        }
+    if ((yPos !== 0) && (xPos !== 0) && this.gameStarted) {
+      // Hit Case
+      if (this.player_2.board.grid[yPos - 1][xPos - 1] !== 0) {
+        const id = this.player_2.board.grid[yPos - 1][xPos - 1];
+        const ship = this.player_2.board.ships[id-1];
+        this.appService.shoot(ship, { shipId: id, position: [xPos - 1, yPos - 1]}, this.playerShots)
+          .subscribe((data: any) => {
+            if (data.ship.id !== 0) {
+              const index = ship.id - 1;
+              this.player_2.board.ships[index] = data.ship;
+              this.playerShots = data.cells;
+              this.ctxShots.drawImage(this.imageHit, xPos * this.cellSize,
+                yPos * this.cellSize, this.cellSize, this.cellSize)
+              this.checkIfShipDestroyed(this.player_2.id, data.ship.hitpoints);
+              this.AIShot();
+            }
+          });
+      }
+      // Miss Case
+      else {
+        this.appService.shoot({ id: 0, name: "", hitpoints: 0, cells: []}, { shipId: 0, position: [xPos - 1, yPos - 1]}, this.playerShots)
+          .subscribe((data: any) => {
+            if (data.ship === null) {
+              this.playerShots = data.cells;
+              this.ctxShots.drawImage(this.imageMiss, xPos * this.cellSize,
+                yPos * this.cellSize, this.cellSize, this.cellSize)
+              this.AIShot();
+            }
+          })
       }
     }
   }
@@ -209,13 +215,11 @@ export class AppComponent implements OnInit {
   getPlayers() {
     this.appService.loadPlayer(1).subscribe((data: Player) => {
       this.player_1 = data;
-      console.log(this.player_1)
       this.drawPlayerShips();
     });
 
     this.appService.loadPlayer(2).subscribe((data: Player) => {
       this.player_2 = data;
-      console.log(this.player_2)
     });
 
     this.clearGrids();
