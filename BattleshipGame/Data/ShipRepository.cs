@@ -6,12 +6,9 @@ namespace BattleshipGame.Data
     public class ShipRepository : IShipRepository
     {
         public IEnumerable<Ship> _ships;
-        private readonly IGameRepository _gameRepository;
 
-        public ShipRepository(IGameRepository gameRepository)
-        {
-            _gameRepository = gameRepository;
-
+        public ShipRepository()
+        {   
             _ships = new List<Ship>()
             {
                 new Ship() { Id = 1, Name = "Destroyer", Size = 2, Hitpoints = 2},
@@ -28,38 +25,76 @@ namespace BattleshipGame.Data
 
         public Ship GetShipById(int id)
         {
+            Ship ship = new Ship();
+
             try
             {
-                Ship ship = _ships.Single(ship => ship.Id == id);
-                return ship;
+                ship = _ships.Single(ship => ship.Id == id);
             }
             catch (Exception ex) 
             {
-                return null;
-            }         
+            }
+
+            return ship;
         }
 
-        public Ship MarkShipCellWithHit(Cell cell)
+        public Ship MarkShipCellWithHit(Ship ship, Cell cell)
         {
             int xPos = cell.Position[0];
             int yPos = cell.Position[1];
 
-            var targetShip = _ships.Where(ship => ship.Id == cell.ShipId).FirstOrDefault();
-            var targetCell = targetShip.Cells.Where(shipCell => shipCell.Position[0] == xPos && shipCell.Position[1] == yPos).FirstOrDefault();
+            var shipCell = ship.Cells.Where(c => c.Position[0] == xPos && c.Position[1] == yPos).FirstOrDefault();
 
-            if (targetCell.IsHit == false)
+            if (shipCell.IsHit == false)
             {
-                targetCell.IsHit = true;
-                targetShip.Hitpoints--;
+                shipCell.IsHit = true;
+                ship.Hitpoints--;
             }         
 
-            return targetShip;
+            return ship;
         }
 
-        public IEnumerable<Ship> GenerateShipCells() 
+        public IEnumerable<Cell> GenerateShot(IEnumerable<Cell> cells) 
+        {
+            bool foundNextshot = false;
+            var cellsList = cells.ToList();
+
+            while (!foundNextshot)
+            {
+                int[] position = GenerateShipPosition(10);
+                int xPos = position[0];
+                int yPos = position[1];
+
+                if ((!cells.Any(c => c.Position[0] == xPos && c.Position[1] == yPos)) || (!cells.Any()))
+                {
+                    Cell targetCell = new Cell() { Position = new int[] { xPos, yPos }, IsHit = false };
+                    cellsList.Add(targetCell);
+                    foundNextshot = true;
+                }
+            }
+
+            return cellsList;
+        }
+
+        public bool CheckForCellsDuplicates(IEnumerable<Cell> cells, Cell cell) 
+        {
+            int xPos = cell.Position[0];
+            int yPos = cell.Position[1];
+            var cellsList = cells.ToList();
+
+            if ((!cells.Any(c => c.Position[0] == xPos && c.Position[1] == yPos)) || (!cells.Any()))
+            {
+                cellsList.Add(cell);
+                return true;
+            }
+
+            return false;
+        }
+
+        public Board GenerateBoard() 
         {
             Random rand = new Random();
-            _gameRepository.ClearGrid();
+            int[,] newGrid = new int[10, 10];
 
             foreach (Ship ship in _ships)
             {   
@@ -70,7 +105,7 @@ namespace BattleshipGame.Data
                     List<Cell> shipCells = new List<Cell>();
                     int[] randStartPosition = GenerateShipPosition(10);
 
-                    if (_gameRepository.IsGridCellEmpty(randStartPosition))
+                    if (IsGridCellEmpty(newGrid, randStartPosition))
                     {
                         int nextPosX = randStartPosition[0];
                         int nextPosY = randStartPosition[1];
@@ -83,27 +118,27 @@ namespace BattleshipGame.Data
                                 // Up
                                 case 0:
                                     nextPosY = randStartPosition[1] - i;
-                                    // Check if cell posision is in boundaries of the grid
-                                    if (nextPosY >= 0 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
+                                    // Making sure that cell position is not taken and in boundaries of the grid
+                                    if (nextPosY >= 0 && IsGridCellEmpty(newGrid, new[] { nextPosX, nextPosY }))
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY }, IsHit = false });
                                     break;
                                 // Right
                                 case 1:
                                     nextPosX = randStartPosition[0] + i;
-                                    if (nextPosX <= 9 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
+                                    if (nextPosX <= 9 && IsGridCellEmpty(newGrid, new[] { nextPosX, nextPosY }))
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY }, IsHit = false });
                                     break;
                                 // Down
                                 case 2:
                                     nextPosY = randStartPosition[1] + i;
-                                    if (nextPosY <= 9 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
+                                    if (nextPosY <= 9 && IsGridCellEmpty(newGrid, new[] { nextPosX, nextPosY }))
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY }, IsHit = false });
                                     break;
                                 // Left
                                 case 3:
                                     nextPosX = randStartPosition[0] - i;
-                                    if (nextPosX >= 0 && _gameRepository.IsGridCellEmpty(new[] { nextPosX, nextPosY }))
-                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY } });
+                                    if (nextPosX >= 0 && IsGridCellEmpty(newGrid, new[] { nextPosX, nextPosY }))
+                                        shipCells.Add(new Cell() { ShipId = ship.Id, Position = new[] { nextPosX, nextPosY }, IsHit = false });
                                     break;
                                 default:
                                     break;
@@ -111,17 +146,44 @@ namespace BattleshipGame.Data
                         }
                     }
 
-                    if (shipCells.Count() == ship.Size)
+                    if (shipCells.Count == ship.Size)
                     {
-                        _gameRepository.MarkCellsOnGrid(shipCells, ship.Id);
-                        ship.Hitpoints = ship.Size;
+                        newGrid = MarkCellsOnGrid(shipCells, newGrid);
                         ship.Cells = shipCells;
                         shipCellsCreated = true;
                     }
-                }          
+                }   
             }
-            _gameRepository.AddShipsToGrid(_ships);
-            return _ships;
+
+            Board board = new Board() { Size = 10, Grid = newGrid, Ships = _ships };
+
+            return board;
+        }
+
+        public int[,] MarkCellsOnGrid(IEnumerable<Cell> cells, int[,] grid)
+        {
+            var cellsList = cells.ToList();
+            foreach (var cell in cellsList)
+            {
+                int cellPosX = cell.Position[0];
+                int cellPosY = cell.Position[1];
+                grid[cellPosY, cellPosX] = cell.ShipId;
+            }
+
+            return grid;
+        }
+
+        public bool IsGridCellEmpty(int[,] grid, int[] cellPosition)
+        {
+            int posX = cellPosition[0];
+            int posY = cellPosition[1];
+
+            if (grid[posY, posX] == 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public int[] GenerateShipPosition(int range)

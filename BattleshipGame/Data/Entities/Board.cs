@@ -1,10 +1,9 @@
 ﻿namespace BattleshipGame.Entities
 {
-    public class Grid
+    public class Board
     {
-        public int PlayerId { get; set; }
         public int Size { get; set; }
-        public int[,] Board { get; set; }
+        public int[,] Grid { get; set; }
         public IEnumerable<Ship> Ships { get; set; }
     }
 }

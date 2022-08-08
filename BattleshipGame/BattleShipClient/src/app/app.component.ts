@@ -1,6 +1,7 @@
 import { ConstantPool } from '@angular/compiler';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { AppService } from './shared/app.service';
+import { Board } from './shared/board';
 import { Cell } from './shared/cell';
 import { Player } from './shared/player';
 import { Ship } from './shared/ship';
@@ -20,15 +21,13 @@ export class AppComponent implements OnInit {
   canvas: ElementRef<HTMLCanvasElement>;
   private ctx: CanvasRenderingContext2D;
   
-  showShips: boolean = false;
-  player: Player;
-  ships: Ship[];
-  index: number;
+  player_1: Player;
+  player_2: Player;
+  private aiShots: Cell[] = [];
+  private playerShots: Cell[] = [];
   private imageHit;
   private imageMiss;
-  private xPos: number;
-  private yPos: number;
-  cellSize = 60;
+  private cellSize = 60;
 
   ngOnInit(): void {
     this.imageHit = new Image();
@@ -75,41 +74,59 @@ export class AppComponent implements OnInit {
     this.ctx.closePath();
   }
 
-  drawHitMark (e: MouseEvent) {
-    this.xPos = Math.floor(e.offsetX / this.cellSize);
-    this.yPos = Math.floor(e.offsetY / this.cellSize);
-    
-    if ((this.yPos !== 0) && (this.xPos !== 0)) {
-      if (this.player.grid[this.yPos - 1][this.xPos - 1] !== 0) {
-        this.appService.shoot(
-          { 
-            shipId: this.player.grid[this.yPos - 1][this.xPos - 1],
-            position: [this.xPos - 1, this.yPos - 1] }    
-          ).subscribe((data: Ship) => {
-              this.index = data.id - 1;
-              this.ships[this.index] = data;
-          });
-        this.ctx.drawImage(this.imageHit, this.xPos * this.cellSize,
-          this.yPos * this.cellSize, this.cellSize, this.cellSize)
-      } 
-      else {
-        this.ctx.drawImage(this.imageMiss, this.xPos * this.cellSize,
-          this.yPos * this.cellSize, this.cellSize, this.cellSize)
-      }
-    }
-  }
+  AIShot() {
+    this.appService.generateAIShot(this.player_1.board, this.aiShots).subscribe((data: any) => {
+      this.aiShots = data.cells;
+      const ship = data.ship;
 
-  spawnShips() {
-    this.appService.loadShips().subscribe((data: any) => {
+      if (ship.id !== 0) {
+        const index = ship.id - 1;
+        this.player_1.board.ships[index] = ship;
+        console.log("Computer hit your ship:", ship.name);
+      }
+      else {
+        console.log("Computer missed");
+      }
     });
   }
 
-  getGrid() {
-    this.appService.loadPlayer().subscribe((data: Player) => {
-      this.player = data;
-      this.ships = data.ships;
-      this.showShips = true;
-      console.log(this.player)
+  drawHitMark (e: MouseEvent) {
+    const xPos = Math.floor(e.offsetX / this.cellSize);
+    const yPos = Math.floor(e.offsetY / this.cellSize);
+    const moveAvailable: boolean = true;
+
+
+    if ((yPos !== 0) && (xPos !== 0) && moveAvailable) {
+      if (this.player_2.board.grid[yPos - 1][xPos - 1] !== 0) {
+        const id = this.player_2.board.grid[yPos - 1][xPos - 1];
+        const ship = this.player_2.board.ships[id-1];
+        this.appService.shoot(
+          ship,
+          { shipId: id, position: [xPos - 1, yPos - 1]}  
+          ).subscribe((data: Ship) => {
+              const index = data.id - 1;
+              this.player_2.board.ships[index] = data;
+              this.ctx.drawImage(this.imageHit, xPos * this.cellSize,
+                yPos * this.cellSize, this.cellSize, this.cellSize)
+          });
+      } 
+      else {
+        this.ctx.drawImage(this.imageMiss, xPos * this.cellSize,
+          yPos * this.cellSize, this.cellSize, this.cellSize)
+      }
+      this.AIShot();
+    }
+  }
+
+  getPlayers() {
+    this.appService.loadPlayer(1).subscribe((data: Player) => {
+      this.player_1 = data;
+      console.log(this.player_1.board.ships)
+    });
+
+    this.appService.loadPlayer(2).subscribe((data: Player) => {
+      this.player_2 = data;
+      console.log(this.player_2.board.ships)
     });
   }
 }

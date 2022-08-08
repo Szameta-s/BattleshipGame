@@ -6,7 +6,6 @@ namespace BattleshipGame.Data.Entities
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public int[,] Grid { get; set; }
-        public IEnumerable<Ship> Ships { get; set; }
+        public Board Board { get; set; }
     }
 }

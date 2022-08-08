@@ -1,4 +1,5 @@
 ﻿using BattleshipGame.Data;
+using BattleshipGame.Data.Entities;
 using BattleshipGame.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -8,35 +9,32 @@ namespace BattleshipGame.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class GameController : Controller
     {
-        private readonly IGameRepository _repository;
+        private readonly IGameRepository _gameRepository;
+        private readonly IShipRepository _shipRepository;
         private readonly ILogger<GameController> _logger;
 
-        public GameController(IGameRepository repository, ILogger<GameController> logger)
+        public GameController(IGameRepository repository, IShipRepository shipRepository, ILogger<GameController> logger)
         {
-            _repository = repository;
+            _gameRepository = repository;
+            _shipRepository = shipRepository;
             _logger = logger;
         }
 
-        [HttpGet]
-        public ActionResult<Grid> GetPlayer()
+        [HttpGet("{id:int}")]
+        public ActionResult<Player> GetPlayers(int id)
         {
-            var results = JsonConvert.SerializeObject(_repository.GetPlayer(), new JsonSerializerSettings
-            {
-                ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Formatting = Formatting.Indented
-            });
+            Player player = _gameRepository.GetPlayerById(id);
+            Board board = new Board();
+
+            board = _shipRepository.GenerateBoard();
+            player.Board = board;
+
+            var results = player;
+
             return Ok(results);
         }
-
-        /*[HttpGet("clear")]
-        public ActionResult<Grid> ClearGrid()
-        {
-            _repository.ClearGrid();
-
-            var results = JsonConvert.SerializeObject(_repository.GetGrid());
-            return Ok(results);
-        }*/
     }
 }

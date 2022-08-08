@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Player } from "./player";
 import { Ship } from "./ship";
 import { Cell } from "./cell";
+import { Board } from "./board";
 
 @Injectable()
 export class AppService {
@@ -10,16 +11,20 @@ export class AppService {
     constructor(public http:HttpClient) {
     }
 
-    loadShips() {
-        return this.http.get<any>('http://localhost:5000/api/ship/spawn');
+    spawnBoard() {
+        return this.http.get<Board>('http://localhost:5000/api/ship/spawn');
     }
 
-    loadPlayer() {
-        return this.http.get<Player>('http://localhost:5000/api/game');
+    loadPlayer(id: number) {
+        return this.http.get<Player>(`http://localhost:5000/api/game/${id}`);
     }
 
-    shoot(cell: Cell) {
-        return this.http.post<Ship>('http://localhost:5000/api/ship/shoot', cell);
+    shoot(ship: Ship, cell: Cell) {
+        return this.http.post<Ship>('http://localhost:5000/api/ship/shoot', {ship, cell});
+    }
+
+    generateAIShot(board: Board, cells: Cell[]) {
+        return this.http.post<any>('http://localhost:5000/api/ship/computer', {board, cells});
     }
 
 }

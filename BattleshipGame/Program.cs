@@ -1,12 +1,15 @@
+using Newtonsoft.Json.Serialization;
 using BattleshipGame.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddSingleton<IShipRepository, ShipRepository>();
-builder.Services.AddSingleton<IGameRepository, GameRepository>();
-builder.Services.AddControllers();
+builder.Services.AddScoped<IShipRepository, ShipRepository>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson( options =>
+    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
